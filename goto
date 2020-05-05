@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+print_style () {
+    if [ "$2" == "info" ] ; then
+        COLOR="96m"
+    elif [ "$2" == "success" ] ; then
+        COLOR="92m"
+    elif [ "$2" == "warning" ] ; then
+        COLOR="93m"
+    elif [ "$2" == "danger" ] ; then
+        COLOR="91m"
+    else #default color
+        COLOR="0m"
+    fi
+
+    STARTCOLOR="\e[$COLOR"
+    ENDCOLOR="\e[0m"
+
+    printf "$STARTCOLOR%b$ENDCOLOR" "$1"
+}
+
+display_options () {
+    printf "Available options:\n";
+    print_style "   goto api (alias fa)" "info"; printf "\t Enter workspace with laradock user and moved to api\n"
+}
+
+go_to () {
+    cc="${dcm} -w ${cws}/$1 ${ctn} bash"
+    print_style "Run: ${cc}\n" "info"
+    ${cc}
+}
+
+docker_action () {
+    cc1="cd /Users/phonglan/workspace/laradock"
+    ${cc1}
+    cc2="docker-compose $1"
+    ${cc2}
+}
+
+cws="/var/www"
+ctn="laradock_workspace_1"
+dcm="docker exec -it -u laradock"
+
+case $1 in
+    start)
+        docker_action "up -d"
+        ;;
+    stop)
+        docker_action "down"
+        ;;
+    fa)
+        go_to "Fireapps/$2"
+        ;;
+    me)
+        go_to "Mine/$2"
+        ;;
+    *)
+        display_options
+        ;;
+esac
+
