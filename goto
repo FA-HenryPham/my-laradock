@@ -48,6 +48,10 @@ case $1 in
     stop)
         docker_action "down"
         ;;
+    restart)
+        cc="docker restart laradock_$2_1"
+        ${cc}
+        ;;
     fa)
         go_to "Fireapps/$2"
         ;;
