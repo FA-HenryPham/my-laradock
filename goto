@@ -55,8 +55,14 @@ case $1 in
     fa)
         go_to "Fireapps/$2"
         ;;
+    it)
+        go_to "IceTea/$2"
+        ;;
     me)
         go_to "Mine/$2"
+        ;;
+    sts)
+        go_to "sts/$2"
         ;;
     *)
         display_options

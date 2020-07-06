@@ -115,7 +115,6 @@ services:
         - "3333"
       ports:
         - "${WORKSPACE_SSH_PORT}:22"
-        - "${WORKSPACE_VUE_CLI_SERVE_HOST_PORT}:8080"
         - "${WORKSPACE_VUE_CLI_UI_HOST_PORT}:8000"
       tty: true
       environment:
@@ -333,7 +332,7 @@ services:
       build:
         context: ./laravel-echo-server
       volumes:
-        - ./laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json:ro
+        - ./laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json
       ports:
         - "${LARAVEL_ECHO_SERVER_PORT}:6001"
       links:
@@ -341,3 +340,19 @@ services:
       networks:
         - frontend
         - backend
+### Your Server #######################################
+    ### yourls:
+    ###   image: yourls
+    ###   links:
+    ###     - mariadb
+    ###   ports:
+    ###     - 8082:80
+    ###   environment:
+    ###     - YOURLS_DB_HOST=mariadb
+    ###     - YOURLS_DB_USER=root
+    ###     - YOURLS_DB_PASS=${MARIADB_ROOT_PASSWORD}
+    ###     - YOURLS_SITE=https://919187bc.ap.ngrok.io
+    ###     - YOURLS_USER=root
+    ###     - YOURLS_PASS=DAcPoRRFOz
+    ###   networks:
+    ###     - backend
