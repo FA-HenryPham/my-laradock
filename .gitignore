@@ -18,3 +18,4 @@
 !/.devcontainer/docker-compose.extend-example.yml
 
 .DS_Store
+workspace/auth.json

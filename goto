@@ -42,6 +42,10 @@ ctn="laradock_workspace_1"
 dcm="docker exec -it -u laradock"
 
 case $1 in
+    op)
+        cc1="subl /Users/phonglan/workspace/laradock"
+        ${cc1}
+        ;;
     start)
         docker_action "up -d"
         ;;
@@ -49,11 +53,18 @@ case $1 in
         docker_action "down"
         ;;
     restart)
-        cc="docker restart laradock_$2_1"
-        ${cc}
+        case $2 in
+            all)
+                docker restart $(docker ps -q)
+                ;;
+            *)
+                cc="docker restart laradock_$2_1"
+                ${cc}
+                ;;
+        esac
         ;;
-    fa)
-        go_to "Fireapps/$2"
+    stt)
+        go_to "Sotatek/$2"
         ;;
     it)
         go_to "IceTea/$2"

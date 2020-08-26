@@ -13,6 +13,8 @@ volumes:
     driver: ${VOLUMES_DRIVER}
   phpmyadmin:
     driver: ${VOLUMES_DRIVER}
+  mongo:
+    driver: ${VOLUMES_DRIVER}
 
 services:
 ### Workspace Utilities ##################################
@@ -340,19 +342,30 @@ services:
       networks:
         - frontend
         - backend
-### Your Server #######################################
-    ### yourls:
-    ###   image: yourls
-    ###   links:
-    ###     - mariadb
-    ###   ports:
-    ###     - 8082:80
-    ###   environment:
-    ###     - YOURLS_DB_HOST=mariadb
-    ###     - YOURLS_DB_USER=root
-    ###     - YOURLS_DB_PASS=${MARIADB_ROOT_PASSWORD}
-    ###     - YOURLS_SITE=https://919187bc.ap.ngrok.io
-    ###     - YOURLS_USER=root
-    ###     - YOURLS_PASS=DAcPoRRFOz
-    ###   networks:
-    ###     - backend
+### MongoDB ##############################################
+    mongo:
+      build: ./mongo
+      ports:
+        - "${MONGODB_PORT}:27017"
+      volumes:
+        - ${DATA_PATH_HOST}/mongo:/data/db
+        - ${DATA_PATH_HOST}/mongo_config:/data/configdb
+      networks:
+        - backend
+### MongoWebUI ################################################
+    # mongo-webui:
+    #   build:
+    #     context: ./mongo-webui
+    #   environment:
+    #     - ROOT_URL=${MONGO_WEBUI_ROOT_URL}
+    #     - MONGO_URL=${MONGO_WEBUI_MONGO_URL}
+    #     - INSTALL_MONGO=${MONGO_WEBUI_INSTALL_MONGO}
+    #   volumes:
+    #     - ${DATA_PATH_HOST}/mongo-webui:/data/db
+    #   ports:
+    #     - "${MONGO_WEBUI_PORT}:3000"
+    #   networks:
+    #     - backend
+    #   depends_on:
+    #     - mongo
+
