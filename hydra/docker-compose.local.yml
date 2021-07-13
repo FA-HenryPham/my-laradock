@@ -1,0 +1,56 @@
+version: '3'
+
+networks:
+  hydraguide:
+    driver: bridge
+
+services:
+### PostgreSQL ###########################################
+    postgres:
+      build:
+        context: ./postgres
+        args:
+          - POSTGRES_VERSION=alpine
+      volumes:
+        - ./hydra/data/postgres:/var/lib/postgresql/data
+        - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_DB=default
+        - POSTGRES_USER=default
+        - POSTGRES_PASSWORD=secret
+      networks:
+        - hydraguide
+    hydra:
+      image: oryd/hydra:v1.9.2
+      ports:
+        - "4444:4444" # Public port
+        - "4445:4445" # Admin port
+        - "5555:5555" # Port for hydra token user
+      command:
+        serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
+      volumes:
+        - ./hydra.yaml:/etc/config/hydra/hydra.yml
+      environment:
+        - DSN=postgres://default:secret@postgres:5432/default?sslmode=disable&max_conns=20&max_idle_conns=4
+      restart: unless-stopped
+      depends_on:
+        - hydra-migrate
+      networks:
+        - hydraguide
+
+    hydra-migrate:
+      image: oryd/hydra:v1.9.2
+      environment:
+        - DSN=postgres://default:secret@postgres:5432/default?sslmode=disable&max_conns=20&max_idle_conns=4
+      command:
+        migrate -c /etc/config/hydra/hydra.yml sql -e --yes
+      volumes:
+        -
+          type: bind
+          source: ./hydra.yaml
+          target: /etc/config/hydra/hydra.yml
+      restart: on-failure
+      networks:
+        - hydraguide

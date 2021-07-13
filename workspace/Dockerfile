@@ -13,7 +13,8 @@
 #
 
 ARG LARADOCK_PHP_VERSION
-FROM laradock/workspace:2.6.1-${LARADOCK_PHP_VERSION}
+ARG BASE_IMAGE_TAG_PREFIX=latest
+FROM laradock/workspace:${BASE_IMAGE_TAG_PREFIX}-${LARADOCK_PHP_VERSION}
 
 LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 
@@ -510,10 +511,7 @@ RUN if [ ${INSTALL_GEARMAN} = true ]; then \
 
 ARG INSTALL_PHPREDIS=true
 
-RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
-    apt-get update -yqq && \
-    apt-get install -yqq php-redis \
-;fi
+RUN apt-get install -yqq php${LARADOCK_PHP_VERSION}-redis
 
 ###########################################################################
 # Swoole EXTENSION
@@ -1298,6 +1296,73 @@ RUN if [ ${INSTALL_GIT_PROMPT} = true ]; then \
     cat /tmp/git-prompt >> /root/.bashrc && \
     rm /tmp/git-prompt \
 ;fi
+
+###########################################################################
+USER root
+
+ARG INSTALL_YAML=false
+ARG INSTALL_RDKAFKA=false
+ARG INSTALL_FFMPEG=false
+
+RUN set -eux; \
+  ###########################################################################
+  # YAML: extension for PHP-CLI
+  ###########################################################################
+  if [ ${INSTALL_YAML} = true ]; then \
+    apt-get install -yqq libyaml-dev; \
+    if   [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        echo '' | pecl install -a yaml-1.3.2; \
+    elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "0" ]; then \
+        echo '' | pecl install yaml-2.0.4; \
+    else \
+        echo '' | pecl install yaml; \
+    fi; \
+    echo "extension=yaml.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/yaml.ini; \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/yaml.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/35-yaml.ini; \
+  fi; \
+  ###########################################################################
+  # RDKAFKA:
+  ###########################################################################
+  if [ ${INSTALL_RDKAFKA} = true ]; then \
+    apt-get install -yqq librdkafka-dev; \
+    pecl install rdkafka; \
+    echo "extension=rdkafka.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/rdkafka.ini; \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/rdkafka.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/20-rdkafka.ini; \
+    php -m | grep -q 'rdkafka'; \
+  fi; \
+
+  ###########################################################################
+  # FFMpeg:
+  ###########################################################################
+  if [ ${INSTALL_FFMPEG} = true ]; then \
+    apt-get -yqq install ffmpeg; \
+  fi
+
+###########################################################################
+# zookeeper
+###########################################################################
+ARG INSTALL_ZOOKEEPER=false
+
+RUN set -eux; \
+    if [ ${INSTALL_ZOOKEEPER} = true ]; then \
+    apt install -yqq libzookeeper-mt-dev; \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
+      curl -L -o /tmp/php-zookeeper.tar.gz https://github.com/php-zookeeper/php-zookeeper/archive/master.tar.gz; \
+      mkdir -p /tmp/php-zookeeper; \
+      tar -C /tmp/php-zookeeper -zxvf /tmp/php-zookeeper.tar.gz --strip 1; \
+      cd /tmp/php-zookeeper; \
+      phpize && ./configure && make && make install;\
+    else \
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        pecl install zookeeper-0.5.0; \
+      else \
+        pecl install zookeeper-0.7.2; \
+      fi; \
+    fi; \
+    echo "extension=zookeeper.so" >> /etc/php/${LARADOCK_PHP_VERSION}/mods-available/zookeeper.ini; \
+    ln -s /etc/php/${LARADOCK_PHP_VERSION}/mods-available/zookeeper.ini /etc/php/${LARADOCK_PHP_VERSION}/cli/conf.d/30-zookeeper.ini; \
+    php -m | grep -q 'zookeeper'; \
+    fi
 
 ###########################################################################
 # Check PHP version:

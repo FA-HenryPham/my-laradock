@@ -1,0 +1,38 @@
+version: '3'
+
+networks:
+  hydraguide:
+    driver: bridge
+
+services:
+  hydra:
+    image: oryd/hydra:latest
+    ports:
+      - "4444:4444" # Public port
+      - "4445:4445" # Admin port
+    command:
+      serve -c /etc/config/hydra/hydra.yml all --dangerous-force-http
+    volumes:
+      - ./hydra.yaml:/etc/config/hydra/hydra.yml
+    environment:
+      - DSN=postgres://ory_hydra_test:EHYPd87pbbd6dwgR@postgres.db.dev.syd.darkwing.io:5432/default?sslmode=disable&max_conns=20&max_idle_conns=4
+    restart: unless-stopped
+    depends_on:
+      - hydra-migrate
+    networks:
+      - hydraguide
+
+  hydra-migrate:
+    image: oryd/hydra:latest
+    environment:
+      - DSN=postgres://ory_hydra_test:EHYPd87pbbd6dwgR@postgres.db.dev.syd.darkwing.io:5432/default?sslmode=disable&max_conns=20&max_idle_conns=4
+    command:
+      migrate -c /etc/config/hydra/hydra.yml sql -e --yes
+    volumes:
+      -
+        type: bind
+        source: ./hydra.yaml
+        target: /etc/config/hydra/hydra.yml
+    restart: on-failure
+    networks:
+      - hydraguide

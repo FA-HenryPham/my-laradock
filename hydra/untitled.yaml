@@ -1,0 +1,139 @@
+serve:
+  cookies:
+    same_site_mode: Lax
+
+urls:
+  self:
+    issuer: https://id.hungpham.dev.syd.soldi.io
+  consent: https://pos-api.hungpham.dev.syd.soldi.io/oauth2/consent
+  login: https://pos-api.hungpham.dev.syd.soldi.io/oauth2/login
+  logout: https://pos-api.hungpham.dev.syd.soldi.io/oauth2/logout
+
+ttl:
+  ## access_token ##
+  #
+  # Configures how long access tokens are valid.
+  #
+  # Default value: 1h
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export TTL_ACCESS_TOKEN=<value>
+  # - Windows Command Line (CMD):
+  #    > set TTL_ACCESS_TOKEN=<value>
+  #
+  access_token: 1h
+
+  ## refresh_token ##
+  #
+  # Configures how long refresh tokens are valid. Set to -1 for refresh tokens to never expire.
+  #
+  # Default value: 720h
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export TTL_REFRESH_TOKEN=<value>
+  # - Windows Command Line (CMD):
+  #    > set TTL_REFRESH_TOKEN=<value>
+  #
+  refresh_token: 8760h
+
+  ## id_token ##
+  #
+  # Configures how long id tokens are valid.
+  #
+  # Default value: 1h
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export TTL_ID_TOKEN=<value>
+  # - Windows Command Line (CMD):
+  #    > set TTL_ID_TOKEN=<value>
+  #
+  id_token: 1h
+
+  ## auth_code ##
+  #
+  # Configures how long auth codes are valid.
+  #
+  # Default value: 10m
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export TTL_AUTH_CODE=<value>
+  # - Windows Command Line (CMD):
+  #    > set TTL_AUTH_CODE=<value>
+  #
+  auth_code: 1h
+
+  ## login_consent_request ##
+  #
+  # Configures how long a user login and consent flow may take.
+  #
+  # Default value: 30m
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export TTL_LOGIN_CONSENT_REQUEST=<value>
+  # - Windows Command Line (CMD):
+  #    > set TTL_LOGIN_CONSENT_REQUEST=<value>
+  #
+  login_consent_request: 1h
+
+secrets:
+  system:
+    - lc0yutYhpuIJxIL3SgfQ9B5c2peRroS7O4P8m9Bu
+
+oidc:
+  ## dynamic_client_registration ##
+  #
+  # Configures OpenID Connect Dynamic Client Registration (exposed as admin endpoints /clients/...).
+  #
+  dynamic_client_registration:
+    ## default_scope ##
+    #
+    # The OpenID Connect Dynamic Client Registration specification has no concept of whitelisting OAuth 2.0 Scope. If you want to expose Dynamic Client Registration, you should set the default scope enabled for newly registered clients. Keep in mind that users can overwrite this default by setting the "scope" key in the registration payload, effectively disabling the concept of whitelisted scopes.
+    #
+    # Examples:
+    # - - openid
+    #   - offline
+    #   - offline_access
+    #
+    # Set this value using environment variables on
+    # - Linux/macOS:
+    #    $ export OIDC_DYNAMIC_CLIENT_REGISTRATION_DEFAULT_SCOPE=<value>
+    # - Windows Command Line (CMD):
+    #    > set OIDC_DYNAMIC_CLIENT_REGISTRATION_DEFAULT_SCOPE=<value>
+    #
+    default_scope:
+      - ecom
+      - external
+      - internal
+      - kiosk
+      - mobile
+      - offline
+      - openid
+      - pos
+  subject_identifiers:
+    supported_types:
+      - public
+    pairwise:
+      salt: NrB91S7QlTNITyqlAy0duuTQDA3Kd0X1YfncpoEH
+strategies:
+  ## access_token ##
+  #
+  # Defines access token type. jwt is a bad idea, see https://www.ory.sh/docs/hydra/advanced#json-web-tokens
+  #
+  # Default value: opaque
+  #
+  # One of:
+  # - opaque
+  # - jwt
+  #
+  # Set this value using environment variables on
+  # - Linux/macOS:
+  #    $ export STRATEGIES_ACCESS_TOKEN=<value>
+  # - Windows Command Line (CMD):
+  #    > set STRATEGIES_ACCESS_TOKEN=<value>
+  #
+  access_token: jwt

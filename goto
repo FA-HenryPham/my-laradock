@@ -33,7 +33,7 @@ go_to () {
 docker_action () {
     cc1="cd /Users/phonglan/workspace/laradock"
     ${cc1}
-    cc2="docker-compose $1"
+    cc2="docker compose $1"
     ${cc2}
 }
 
@@ -74,6 +74,27 @@ case $1 in
         ;;
     sts)
         go_to "sts/$2"
+        ;;
+    run)
+        if [ "$2" == "dev" ] ; then
+            start="start:dev"
+        else
+            start="start"
+        fi
+        cc="export NPM_AUTH_TOKEN=0acfc224-d0df-44f6-ae0a-d7454b1c1f73"
+        ${cc}
+        cc1="npm run $start"
+        ${cc1}
+        ;;
+    npm)
+        cc="export NPM_AUTH_TOKEN=0acfc224-d0df-44f6-ae0a-d7454b1c1f73"
+        ${cc}
+        cc1="npm install"
+        ${cc1}
+        ;;
+    log)
+        cc="tail -f storage/logs/laravel.log"
+        ${cc}
         ;;
     *)
         display_options
